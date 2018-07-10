@@ -66,6 +66,27 @@ LoginSchema.statics.findByToken = function (token){
     });
 };
 
+LoginSchema.statics.findByCredentials = function (email, password){
+
+    var Login = this;
+    return Login.findOne({email}).then((login) => {
+        if(!login){
+            return Promise.reject();
+        }
+
+        return new Promise((resolve, reject) =>{
+            //Use bcrypt.compare to compare password and user.password
+            bcrypt.compare(password,login.password,(err,res) => {
+                if(res){
+                  resolve(login);
+                }else{
+                    reject();
+                }
+            });
+        });
+    });
+};
+
 LoginSchema.pre('save', function(next) {
     var login = this;
     if(login.isModified('password')){

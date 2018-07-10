@@ -23,6 +23,19 @@ app.post('/login', (req,res) => {
     })
 });
 
+app.post('/login/user',(req,res) => {
+    var body = _.pick(req.body,['email','password']);
+
+    Login.findByCredentials(body.email,body.password).then((login) => {
+        return   login.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(login); 
+        });
+    }).catch((e) =>{
+        res.status(400).send();
+    });
+
+});
+
 app.get('/login/me',authenticate,(req,res) => {
 
     res.send(req.login);
