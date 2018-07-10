@@ -4,6 +4,7 @@ const _ = require('lodash');
 
 var { mongoose } = require('./db/mongoose');
 var { Login } = require('./models/login');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 app.use(bodyParser.json());
@@ -20,6 +21,11 @@ app.post('/login', (req,res) => {
         console.log("error" + e);
         res.status(400).send(e);
     })
+});
+
+app.get('/login/me',authenticate,(req,res) => {
+
+    res.send(req.login);
 });
 
 app.listen(3000,()=>{

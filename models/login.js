@@ -32,6 +32,7 @@ var LoginSchema = new mongoose.Schema({
         }
     }] 
 });
+
 LoginSchema.methods.toJSON = function(){
     var user = this;
     var userObject = user.toObject();
@@ -46,6 +47,21 @@ LoginSchema.methods.generateAuthToken = function(){
     login.tokens.push({access, token});
     return login.save().then(() => {
         return token;
+    });
+};
+
+LoginSchema.statics.findByToken = function (token){
+    var Login = this;
+    var decoded;
+    try{
+        decoded = jwt.verify(token, 'abc123');
+    }catch(e){
+        return Promise.reject('test');
+    }
+    return Login.findOne({ 
+        _id: decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
     });
 };
 
