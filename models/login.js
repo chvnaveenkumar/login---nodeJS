@@ -50,6 +50,7 @@ LoginSchema.methods.generateAuthToken = function(){
         return token;
     });
 };
+<<<<<<< HEAD
 LoginSchema.methods.tempgenerateAuthToken = function(){
     var login = this;
     var access = 'auth';
@@ -60,6 +61,8 @@ LoginSchema.methods.tempgenerateAuthToken = function(){
     });
 };
 
+=======
+>>>>>>> 8bdf8a2dc807d1c91dfa9002a0d65620efa107ba
 
 LoginSchema.statics.findByToken = function (token){
     var Login = this;
