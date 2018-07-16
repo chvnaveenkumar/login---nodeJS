@@ -7,7 +7,7 @@ var tokenchecl = (req,res,next) => {
         var decoded = jwt.verify(token, 'abc123');
         next(); 
       } catch(err) {
-        // err
+        // error
         res.status(401).send("error");
       }
 };
