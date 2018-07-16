@@ -1,77 +1,59 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 const _ = require('lodash');
-<<<<<<< HEAD
 var jwt = require('jsonwebtoken');
-=======
->>>>>>> 8bdf8a2dc807d1c91dfa9002a0d65620efa107ba
 
 var { mongoose } = require('./db/mongoose');
 var { Login } = require('./models/login');
 var {authenticate} = require('./middleware/authenticate');
-<<<<<<< HEAD
-var {tokenchecl} = require('./middleware/tokenchecl');
+var {tokencheck} = require('./middleware/tokencheck');
 
 var app = express();
 app.use(bodyParser.json());
 var cors = require('cors')
 app.use(cors());
-=======
+
 
 var app = express();
 app.use(bodyParser.json());
->>>>>>> 8bdf8a2dc807d1c91dfa9002a0d65620efa107ba
 
-app.post('/login', (req,res) => {
+//Signup User, it create a new token to the user
+app.post('/user/signup', (req,res) => {
     var body = _.pick(req.body,['email','password']);
     var login = new Login(body);
-   
-    login.save().then(() => {
-        return login.generateAuthToken();
-    }).then((token) => {
-    res.header('x-auth', token).send(login);
+    login.token = login.generateAuthToken();
+    login.save().then((user) => {
+    res.header('x-auth', user.token).send(login);
     }).catch((e) => {
         console.log("error" + e);
         res.status(400).send(e);
     })
 });
 
-app.post('/login/user',(req,res) => {
+// Check the login user and generate temperory token to user to maintain session or do operations.
+app.post('/user/login',(req,res) => {
     var body = _.pick(req.body,['email','password']);
-
     Login.findByCredentials(body.email,body.password).then((login) => {
-<<<<<<< HEAD
-        return   login.tempgenerateAuthToken().then((token) => {
-            res.send(token); 
-=======
-        return   login.generateAuthToken().then((token) => {
-            res.header('x-auth', token).send(login); 
->>>>>>> 8bdf8a2dc807d1c91dfa9002a0d65620efa107ba
+        var newToken = login.generateAuthToken();
+        return Login.updateToken(login.email,newToken).then(() => {
+            res.send(newToken); 
         });
     }).catch((e) =>{
-        res.status(400).send();
+        res.status(400).send(e);
     });
-<<<<<<< HEAD
 });
 
-app.post('/user/details',tokenchecl,(req,res) => {
-    var body = _.pick(req.body,['sname']);
-    console.log("asdf",body);
-
+// get the user details using the current token
+app.post('/user/details',tokencheck,(req,res) => {
+    var body = _.pick(req.body,['email','password']);
     Login.findByCredentials(body.email,body.password).then((login) => {
-        return   login.tempgenerateAuthToken().then((token) => {
-            res.send(token); 
-        });
+        res.status(200).send(login.email);
     }).catch((e) =>{
-        res.status(400).send();
+        res.status(400).send("error with user details");
     });
-=======
-
->>>>>>> 8bdf8a2dc807d1c91dfa9002a0d65620efa107ba
 });
 
 app.get('/login/me',authenticate,(req,res) => {
-
     res.send(req.login);
 });
 

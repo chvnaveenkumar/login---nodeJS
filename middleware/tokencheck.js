@@ -1,7 +1,7 @@
 var {Login} = require ('./../models/login')
 var jwt = require('jsonwebtoken');
 
-var tokenchecl = (req,res,next) => {
+var tokencheck = (req,res,next) => {
     var token = req.header('x-auth');
     try {
         var decoded = jwt.verify(token, 'abc123');
@@ -12,4 +12,4 @@ var tokenchecl = (req,res,next) => {
       }
 };
 
-module.exports = {tokenchecl};
+module.exports = {tokencheck};

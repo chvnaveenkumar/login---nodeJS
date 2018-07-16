@@ -22,47 +22,23 @@ var LoginSchema = new mongoose.Schema({
         require: true,
         minlength: 6
      },
-     tokens: [{
-        access: {
-            type: String,
-            required: true
-        },
-        token:{
-            type: String,
-            required: true
-        }
-    }] 
+    token:{
+        type: String,
+        required: true
+    } 
 });
 
 LoginSchema.methods.toJSON = function(){
     var user = this;
     var userObject = user.toObject();
-
     return _.pick(userObject,['_id','email']);
 };
 
 LoginSchema.methods.generateAuthToken = function(){
     var login = this;
-    var access = 'auth';
-    var token = jwt.sign({_id: login._id.toHexString(), access},'abc123').toString();
-    login.tokens.push({access, token});
-    return login.save().then(() => {
-        return token;
-    });
+    var gen_token = jwt.sign({_id: login._id.toHexString(), access},'abc123',{ expiresIn: 1 * 30 }).toString();
+    return gen_token;
 };
-<<<<<<< HEAD
-LoginSchema.methods.tempgenerateAuthToken = function(){
-    var login = this;
-    var access = 'auth';
-    var token = jwt.sign({_id: login._id.toHexString(), access},'abc123',{ expiresIn: 1 * 30 }).toString();
-    login.tokens.push({access, token});
-    return login.save().then(() => {
-        return token;
-    });
-};
-
-=======
->>>>>>> 8bdf8a2dc807d1c91dfa9002a0d65620efa107ba
 
 LoginSchema.statics.findByToken = function (token){
     var Login = this;
@@ -80,13 +56,11 @@ LoginSchema.statics.findByToken = function (token){
 };
 
 LoginSchema.statics.findByCredentials = function (email, password){
-
     var Login = this;
     return Login.findOne({email}).then((login) => {
         if(!login){
             return Promise.reject();
         }
-
         return new Promise((resolve, reject) =>{
             //Use bcrypt.compare to compare password and user.password
             bcrypt.compare(password,login.password,(err,res) => {
@@ -100,12 +74,25 @@ LoginSchema.statics.findByCredentials = function (email, password){
     });
 };
 
+LoginSchema.statics.updateToken = function(email,newtoken) {
+ var Login = this;
+ return  Login.updateOne({email},{$set: {token: newtoken}}, (err,res) =>{
+    if(err){
+        return Promise.reject();
+    }
+ });
+
+};
+
+
+
 LoginSchema.pre('save', function(next) {
     var login = this;
     if(login.isModified('password')){
         bcrypt.genSalt(10, (err,salt) => {
             bcrypt.hash(login.password,salt,(err,hash) => {
                 login.password = hash;
+               
                 next();
             })
         });
