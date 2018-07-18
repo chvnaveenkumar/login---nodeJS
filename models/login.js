@@ -36,8 +36,12 @@ LoginSchema.methods.toJSON = function(){
 
 LoginSchema.methods.generateAuthToken = function(){
     var login = this;
-    var gen_token = jwt.sign({_id: login._id.toHexString(), access},'abc123',{ expiresIn: 1 * 30 }).toString();
-    return gen_token;
+    try{
+        var gen_token = jwt.sign({_id: login._id.toHexString()},'abc123'/*,{expiresIn:  2 * 60 }*/).toString();
+        return gen_token;
+    }catch(e){
+        return Promise.reject('Unable to generate token');
+    }
 };
 
 LoginSchema.statics.findByToken = function (token){
@@ -74,12 +78,31 @@ LoginSchema.statics.findByCredentials = function (email, password){
     });
 };
 
+LoginSchema.statics.findByUser = function (email){
+    var Login = this;
+    return Login.findOne({email}).then((user) => {
+        if(!user){
+            return Promise.reject();
+        }
+        console.log(user.password);
+        return new Promise((resolve, reject) =>{
+            //Use bcrypt.compare to compare password and user.password
+                if(resolve){
+                  resolve(user);
+                }else{
+                    reject();
+                }
+            });
+        });
+};
+
 LoginSchema.statics.updateToken = function(email,newtoken) {
  var Login = this;
  return  Login.updateOne({email},{$set: {token: newtoken}}, (err,res) =>{
     if(err){
         return Promise.reject();
     }
+    Promise.resolve(res);
  });
 
 };

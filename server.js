@@ -13,10 +13,6 @@ app.use(bodyParser.json());
 var cors = require('cors')
 app.use(cors());
 
-
-var app = express();
-app.use(bodyParser.json());
-
 //Signup User, it create a new token to the user
 app.post('/user/signup', (req,res) => {
     var body = _.pick(req.body,['email','password']);
@@ -45,12 +41,14 @@ app.post('/user/login',(req,res) => {
 
 // get the user details using the current token
 app.post('/user/details',tokencheck,(req,res) => {
-    var body = _.pick(req.body,['email','password']);
-    Login.findByCredentials(body.email,body.password).then((login) => {
-        res.status(200).send(login.email);
-    }).catch((e) =>{
-        res.status(400).send("error with user details");
+    console.log(req.body.sname);
+    Login.findByUser(req.body.sname).then((user) =>{
+        console.log(user.password);
+        return res.send(user.password);
+    }).catch((e) => {
+        res.status(400).send("User details not found!!");
     });
+
 });
 
 app.get('/login/me',authenticate,(req,res) => {
