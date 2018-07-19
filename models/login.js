@@ -85,6 +85,9 @@ LoginSchema.statics.findByUser = function (email){
             return Promise.reject();
         }
         console.log(user.password);
+        var salt = bcrypt.genSaltSync(10);
+        var hash = bcrypt.hashSync(user.password,salt);
+        console.log("Password from db",hash);
         return new Promise((resolve, reject) =>{
             //Use bcrypt.compare to compare password and user.password
                 if(resolve){
@@ -107,8 +110,6 @@ LoginSchema.statics.updateToken = function(email,newtoken) {
 
 };
 
-
-
 LoginSchema.pre('save', function(next) {
     var login = this;
     if(login.isModified('password')){
@@ -123,8 +124,6 @@ LoginSchema.pre('save', function(next) {
     }else{
         next();
     }
-
-
 });
 
 var Login = mongoose.model('Login', LoginSchema);
