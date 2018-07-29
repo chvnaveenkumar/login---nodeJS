@@ -37,7 +37,7 @@ LoginSchema.methods.toJSON = function(){
 LoginSchema.methods.generateAuthToken = function(){
     var login = this;
     try{
-        var gen_token = jwt.sign({_id: login._id.toHexString()},'abc123'/*,{expiresIn:  2 * 60 }*/).toString();
+        var gen_token = jwt.sign({_id: login._id.toHexString()},'abc123',{expiresIn:  1 * 60 }).toString();
         return gen_token;
     }catch(e){
         return Promise.reject('Unable to generate token');
